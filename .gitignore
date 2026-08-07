@@ -1,0 +1,25 @@
+# Build outputs
+*.exe
+*.obj
+*.pdb
+*.dll
+
+# Build artifact directories
+ZedCredentialAuditGui/bin/
+ZedCredentialAuditGui/obj/
+
+# IDE / editor
+.vs/
+.idea/
+*.user
+*.suo
+
+# Local cache / temp
+*.tmp
+*.bak
+*.log
+*.old
+
+# OS
+Thumbs.db
+.DS_Store

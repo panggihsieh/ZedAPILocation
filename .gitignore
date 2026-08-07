@@ -23,3 +23,5 @@ ZedCredentialAuditGui/obj/
 # OS
 Thumbs.db
 .DS_Store
+# ChatGPT image attachments
+ChatGPT Image *.png

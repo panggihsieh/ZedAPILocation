@@ -107,8 +107,8 @@ namespace ZedCredentialAuditGui
                 FlatStyle     = FlatStyle.System,
                 Cursor        = Cursors.Hand
             };
-            _langCombo.Items.Add("\U0001F1F9\U0001F1FC  Chinese (繁體中文)");
-            _langCombo.Items.Add("\U0001F1FA\U0001F1FC  English");
+            _langCombo.Items.Add("[TW]  中文 (繁體中文)");
+            _langCombo.Items.Add("[EN]  English");
             _langCombo.SelectedIndex = 0;  // 預設中文
             rightPanel.Controls.Add(_langCombo);
             toolbar.Controls.Add(rightPanel, 1, 0);
@@ -310,6 +310,11 @@ namespace ZedCredentialAuditGui
                 UpdateEnvBox();
                 UpdateCredBox();
 
+                // Special row: API lifecycle tutorial
+                AddFinding("Tutorial", "API Lifecycle (register to use)",
+                           "[GUIDE]", "Click for details",
+                           "End-to-end flow: sign up, create key, store, use");
+
                 int localCount = _findings.Count(f => f.Status == "[LOCAL]");
                 int envCount   = _findings.Count(f => f.Status == "[ENV]");
                 _lblSummary.Text =
@@ -398,11 +403,16 @@ namespace ZedCredentialAuditGui
                     RedirectStandardOutput = true,
                     RedirectStandardError  = true,
                     UseShellExecute        = false,
-                    CreateNoWindow         = true,
-                    StandardOutputEncoding = Encoding.UTF8
+                    CreateNoWindow         = true
+                    // Note: cmdkey outputs in the system codepage (Big5 on
+                    // Chinese Windows), NOT UTF-8. Reading the raw bytes
+                    // and decoding as Big5 avoids the "[]" mojibake.
                 };
                 using var p = Process.Start(psi);
-                return p.StandardOutput.ReadToEnd();
+                using var ms = new MemoryStream();
+                p.StandardOutput.BaseStream.CopyTo(ms);
+                var bytes = ms.ToArray();
+                return Encoding.GetEncoding(950).GetString(bytes);
             }
             catch
             {
@@ -547,6 +557,33 @@ namespace ZedCredentialAuditGui
 
         private string GetEnglishDescription(Finding f)
         {
+            // ====== Special: API Lifecycle tutorial ======
+            if (f.Name.StartsWith("API Lifecycle"))
+            {
+                return "API Lifecycle (register -> use)\n\n" +
+                       "1. Sign up\n" +
+                       "   - Go to the LLM provider website (e.g. platform.deepseek.com)\n" +
+                       "   - Verify email / phone\n\n" +
+                       "2. Add payment (paid API)\n" +
+                       "   - Top up or link a credit card on the Billing page\n" +
+                       "   - Many providers give a free tier on signup\n\n" +
+                       "3. Create an API Key\n" +
+                       "   - On the API Keys page, click 'Create new key'\n" +
+                       "   - Set permissions and rate limits\n" +
+                       "   - Copy the full sk-xxx string (shown only once)\n\n" +
+                       "4. Store locally\n" +
+                       "   - Secure path: paste into Zed's LLM Provider UI -> saved to Windows Credential Manager (DPAPI)\n" +
+                       "   - Easier path: save to an environment variable (plaintext)\n" +
+                       "   - This tool scans and reports which providers have keys on this machine\n\n" +
+                       "5. Use\n" +
+                       "   - Zed loads the key on startup and calls the LLM API\n" +
+                       "   - Click any row above to see its local-storage status\n\n" +
+                       "6. Monitor and rotate\n" +
+                       "   - Periodically check the provider's usage dashboard\n" +
+                       "   - Rotate the key immediately on suspicious activity\n" +
+                       "   - Enable 2FA on important accounts";
+            }
+
             var sb = new StringBuilder();
             sb.AppendLine($"Status    : {f.Status}");
             sb.AppendLine($"Category  : {f.Category}");
@@ -558,6 +595,32 @@ namespace ZedCredentialAuditGui
 
         private string GetChineseDescription(Finding f)
         {
+            // ====== Special: API Lifecycle tutorial ======
+            if (f.Name.StartsWith("API Lifecycle"))
+            {
+                return "API 完整生命週期（註冊 → 使用）\n\n" +
+                       "1. 註冊帳號\n" +
+                       "   - 到 LLM Provider 官方網站（如 platform.deepseek.com）註冊\n" +
+                       "   - 完成 email / 手機驗證\n\n" +
+                       "2. 儲值（付費 API）\n" +
+                       "   - 到 Billing 頁面儲值或綁定信用卡\n" +
+                       "   - 部分 provider 註冊送免費額度\n\n" +
+                       "3. 產生 API Key\n" +
+                       "   - 到 API Keys 頁面 Create new key\n" +
+                       "   - 設定 Key 權限與額度上限\n" +
+                       "   - 複製 sk-xxx 完整字串（僅顯示一次）\n\n" +
+                       "4. 儲存到本機\n" +
+                       "   - 安全方案：在 Zed 的 LLM Provider UI 貼上 → 存到 Windows Credential Manager（DPAPI 加密）\n" +
+                       "   - 簡易方案：存到環境變數（明文）\n" +
+                       "   - 本工具可掃描並顯示本機有哪些 provider 的 Key 存在\n\n" +
+                       "5. 使用\n" +
+                       "   - Zed 啟動時自動載入 Key，呼叫 LLM API\n" +
+                       "   - 點選上方 row 可看到本機儲存狀態\n\n" +
+                       "6. 監控與管理\n" +
+                       "   - 定期到 Provider 後台查看 usage、log\n" +
+                       "   - 發現異常用量立即 Rotate Key\n" +
+                       "   - 重要帳號啟用 2FA";
+            }
             // ====== [LOCAL] stored in Windows Credential Manager (DPAPI) ======
             if (f.Status == "[LOCAL]" && f.Location == "Windows Credential Manager")
             {

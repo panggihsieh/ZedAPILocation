@@ -57,7 +57,7 @@ namespace ZedCredentialAuditGui
         private readonly Label        _lblSummary;
         private readonly Button       _btnRun;
         private readonly Button       _btnExport;
-        private readonly ComboBox     _langCombo;
+        private readonly Button       _langBtn;
         private readonly TabControl   _tabs;
 
         private Lang    _lang = Lang.English;
@@ -99,18 +99,17 @@ namespace ZedCredentialAuditGui
                 Padding       = new Padding(0, 7, 6, 0),
                 FlowDirection = FlowDirection.RightToLeft
             };
-            _langCombo = new ComboBox {
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Width         = 140,
-                Height        = 30,
-                Font          = new System.Drawing.Font("Segoe UI Emoji", 11),
-                FlatStyle     = FlatStyle.System,
-                Cursor        = Cursors.Hand
+            _langBtn = new Button {
+                Text      = "🇹🇼",
+                Width     = 56,
+                Height    = 30,
+                Font      = new System.Drawing.Font("Segoe UI Emoji", 14),
+                FlatStyle = FlatStyle.Flat,
+                Cursor    = Cursors.Hand,
+                TextAlign = System.Drawing.ContentAlignment.MiddleCenter
             };
-            _langCombo.Items.Add("[TW]  中文 (繁體中文)");
-            _langCombo.Items.Add("[EN]  English");
-            _langCombo.SelectedIndex = 0;  // 預設中文
-            rightPanel.Controls.Add(_langCombo);
+            _langBtn.FlatAppearance.BorderSize = 0;
+            rightPanel.Controls.Add(_langBtn);
             toolbar.Controls.Add(rightPanel, 1, 0);
 
             // -----------------------------------------------------
@@ -123,7 +122,7 @@ namespace ZedCredentialAuditGui
                 ReadOnly  = true,
                 BackColor = System.Drawing.Color.FromArgb(252, 252, 240),
                 Font      = new System.Drawing.Font("Segoe UI", 9),
-                Text      = "Click a row above to see description.   /   點選上列以查看說明。"
+                Text      = "Click a row above to see description.   /   點選上列以查看說明。\r\nAPI Setup: Register -> Get Key -> Paste in Zed Provider UI -> Stored in Credential Manager (DPAPI)"
             };
 
             // -----------------------------------------------------
@@ -197,7 +196,7 @@ namespace ZedCredentialAuditGui
             // -----------------------------------------------------
             _btnRun.Click           += (s, e) => RunAudit();
             _btnExport.Click        += (s, e) => ExportCsv();
-            _langCombo.SelectedIndexChanged += (s, e) => OnLangChanged();
+            _langBtn.Click += (s, e) => ToggleLang();
             _grid.SelectionChanged  += (s, e) => UpdateDescription();
 
             Load += (s, e) => RunAudit();
@@ -518,16 +517,10 @@ namespace ZedCredentialAuditGui
         // Description panel (row click)
         // ---------------------------------------------------------
 
-        private void OnLangChanged()
-        {
-            _lang = (_langCombo.SelectedIndex == 0) ? Lang.Chinese : Lang.English;
-            UpdateDescription();
-        }
-
         private void ToggleLang()
         {
-            // kept for backward compatibility; not used after ComboBox switch
             _lang = (_lang == Lang.English) ? Lang.Chinese : Lang.English;
+            _langBtn.Text = (_lang == Lang.Chinese) ? "🇹🇼" : "🇺🇸";
             UpdateDescription();
         }
 
@@ -536,8 +529,8 @@ namespace ZedCredentialAuditGui
             if (_grid.SelectedRows.Count == 0)
             {
                 _txtDesc.Text = (_lang == Lang.English)
-                    ? "Click a row above to see description."
-                    : "點選上列以查看說明。";
+                    ? "Click a row above to see description.\r\n\r\nAPI Setup: Register -> Get Key -> Paste in Zed Provider UI -> Stored in Credential Manager (DPAPI)"
+                    : "點選上列以查看說明。\r\n\r\nAPI 設定：註冊 → 取得 Key → 貼到 Zed Provider UI → 存於認證管理員 (DPAPI)";
                 return;
             }
 

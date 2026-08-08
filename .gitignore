@@ -5,9 +5,9 @@
 *.dll
 
 # Build artifact directories
-ZedCredentialAuditGui/bin/
-ZedCredentialAuditGui/obj/
-ZedCredentialAuditGui/publish/
+bin/
+obj/
+publish/
 
 # IDE / editor
 .vs/

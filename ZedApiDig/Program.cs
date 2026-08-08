@@ -1090,6 +1090,13 @@ namespace ZedCredentialAuditGui
         [STAThread]
         static void Main()
         {
+            // cmdkey /list outputs in the system codepage (Big5 on zh-TW Windows).
+            // .NET 8 does NOT support codepage encodings unless the CodePages
+            // provider is registered first — without this, Encoding.GetEncoding(950)
+            // throws and RunCmdkey() silently returns "", so Credential Manager
+            // findings (DeepSeek, OpenAI, Zed Account, ...) never appear.
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());

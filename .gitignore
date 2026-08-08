@@ -9,6 +9,30 @@ bin/
 obj/
 publish/
 
+# Legacy CLI / PS versions (GUI-only repo)
+*.ps1
+ZedCredentialAudit.cpp
+build.bat
+
+# Old working-tree duplicate (ZedApiDig/ is canonical)
+ZedCredentialAuditGui/
+
+# Dev-only tools (not part of the product)
+SnapTool/
+SvgTest/
+screenshot.cs
+svgtest.cs
+
+# Debug screenshots & scratch assets
+*.png
+*.ico
+*.svg
+gui_v*.png
+!ZedApiDig/Assets/
+!ZedApiDig/Resources/
+!ZedApiDig/**/*.svg
+!ZedApiDig/**/*.ico
+
 # IDE / editor
 .vs/
 .idea/

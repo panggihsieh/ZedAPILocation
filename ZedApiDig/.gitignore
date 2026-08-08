@@ -1,0 +1,30 @@
+# Build outputs
+*.exe
+*.obj
+*.pdb
+*.dll
+
+# Build artifact directories
+bin/
+obj/
+publish/
+
+# IDE / editor
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+
+# Local cache / temp
+*.tmp
+*.bak
+*.log
+*.old
+
+# OS
+Thumbs.db
+.DS_Store
+
+# ChatGPT image attachments
+ChatGPT Image *.png
